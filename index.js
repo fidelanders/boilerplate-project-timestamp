@@ -25,26 +25,26 @@ app.get("/api/hello", function (req, res) {
 });
 
 
-//Timestamp API endpoint...
-app.get("/api/timestamp/", (req, res)=> {
-  let dateRes = new Date();
-  res.json({ "unix": dateRes.getTime(), "utc": dateRes.toUTCString() });
-});
+/******TIMESTAMP API ENDPOINT *******/
+app.get("/api/:date?", (req, res) => {
+  const givenDate = req.params.date;
+  let date;
 
-app.get("/api/timestamp/:date", function (req, res) {
-  let dateStr = req.params.date;
-  console.log(dateStr);
-  if (dateStr.indexOf('-') === -1) {
-      dateStr = new Number(dateStr);
-  }
-  let dateRes = new Date(dateStr);
-  if (isValidDate(dateRes)) {
-      res.json({ "unix": dateRes.getTime(), "utc": dateRes.toUTCString() });
+  // check if date is empty
+  if (!givenDate) {
+    date = new Date();
   } else {
-      res.json({ "unix": null, "utc": "Invalid Date" });
+    const checkUnix = givenDate * 1;
+    date = isNaN(checkUnix) ? new Date(givenDate) : new Date(checkUnix);
+  }
+
+  //check if date is invalid
+  if (date == "Invalid Date") {
+    res.json({ error: "Invalid Date" });
+  } else {
+    res.json({ unix: date.getTime(), utc: date.toUTCString() });
   }
 });
-
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT, function () {
